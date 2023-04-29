@@ -24,17 +24,17 @@
     flex-direction: row;
 }
 
-.input {
+.behaviorInput {
     flex-grow: 1;
     padding: 10px;
     border: 1px #FFFFFF solid;
     border-radius: 0;
     font-size: 1rem;
-    background: #4968cf;
+    background: #FCC3B4;
 }
 
-.submit {
-    background: #4968cf;
+.behaviorSubmit {
+    background: #B7CECE;
     border: 1px #ffffff solid;
     display: flex;
     padding: 1rem;
@@ -46,7 +46,7 @@
 }
 
 .submit:hover {
-    background: #1c0a42;
+    background: #4968cf;
     cursor: pointer;
 }
 
@@ -54,9 +54,22 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background: hsl(202, 76%, 84%);
+    
 }
 
 .chatMessageList :global .scrollbar-container {
     height: auto;
 }
+
+/* 
+#FFE5B4 - peach
+#B7CECE - light green
+#FFC0CB (pink)
+- #FF69B4 (hot pink)
+- #FC89AC (bubble gum pink)
+- #FFB6C1 (light pink)
+- #FCC3B4 (salmon pink)
+
+
+
+*/

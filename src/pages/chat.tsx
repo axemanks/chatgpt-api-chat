@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-key */
-import { MainContainer, ChatContainer, MessageInput, MessageList, Message } from "@chatscope/chat-ui-kit-react";
+import { ChatContainer, MainContainer, Message, MessageInput, MessageList, TypingIndicator } from "@chatscope/chat-ui-kit-react";
 import styles from '@/styles/Chat.module.css';
 import { useState, useEffect, useRef } from "react";
+import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from "openai";
 
 // Message is being used from Chat UI Kit and declared below which is causing the type error
 type Message = {
@@ -13,8 +14,14 @@ type Message = {
 // declare ChatGPT
 const CHATGPT_USER = "ChatGPT";
 // default behaviour
-const DEFAULT_BEHAVIOUR = "General Conversaton";
+const DEFAULT_BEHAVIOUR = "General Conversation";
 
+// Openai API key
+const CONFIGURATION = new Configuration({
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+})
+// create configuration
+const OPENAI_CLIENT = new OpenAIApi(CONFIGURATION);
 
 export default function Chat() {
     const messageInput = useRef<HTMLDivElement>(null);    
@@ -31,7 +38,7 @@ export default function Chat() {
 
     const sendMessage = async (innerHtml: string, textContent: string, innerText: string, nodes: NodeList) => {
         const newMessageList = [...messages];     
-        const newMessage = {
+        const newMessage: Message = {
             content: textContent,
             sentTime: Math.floor(Date.now() / 1000),
             sender: 'You',
@@ -43,9 +50,9 @@ export default function Chat() {
 
         //  response
         setWaitingForResponse(true); // set waiting for response (state) to true
-        const response = await getResponse();
+        const response = await getResponse(newMessageList);
 
-        const newMessageResponse = {
+        const newMessageResponse: Message = {
             content: response.content,
             sentTime: Math.floor(Date.now() / 1000),
             sender: CHATGPT_USER,
@@ -58,9 +65,40 @@ export default function Chat() {
     }
     
     // api call - mock math response
-    const getResponse = async () => {
+    const getResponse = async (newMessageList: Message[]) => {
+        // set system message
+        const systemMessage = {
+            role: ChatCompletionRequestMessageRoleEnum.System,
+            content: behavior,
+        }
+        // create input
+        const input = newMessageList.map((message) => {
+            return {
+                role: message.sender === CHATGPT_USER ? ChatCompletionRequestMessageRoleEnum.Assistant : ChatCompletionRequestMessageRoleEnum.User,
+                content: message.content,
+            }
+        });
+        // test of code
+    
+        // pass system and input to Openai
+        const response = await OPENAI_CLIENT.createChatCompletion({
+            model: 'gpt-3.5-turbo',
+            messages: [systemMessage, ...input],
+        });
+        // console the response
+        console.log(response.data.choices[0].message?.content);
+        // cosole the role
+        console.log(response.data.choices[0].message?.role);
+        
+        // return response
+        return {
+            content: response.data.choices[0].message?.content,
+        }       
+    
+
         await new Promise(f => setTimeout(f, 1000));
         return {
+            //mock math response
             content: `${Math.random()}`,
         }
     }
@@ -75,17 +113,20 @@ export default function Chat() {
         <div className={styles.container}>
             <div className={styles.inputContainer}>
                 {/* behaviour */}
-                <input className={styles.input} value={behaviorInput} onChange={e => setBehaviorInput(e.target.value)} />
-                <button className={styles.submit} onClick={updateBehavior}>Update Behavior</button>
+                <input className={styles.behaviorInput} value={behaviorInput} onChange={e => setBehaviorInput(e.target.value)} />
+                <button className={styles.behaviorSubmit} onClick={updateBehavior}>Update Behavior</button>
             </div>
             <div className={styles.chatWrapper}>
                 <div className={styles.chatContainer}>
                 <MainContainer className={styles.chatMessageList}>
                     <ChatContainer>
-                        <MessageList >
-                        {messages.map((message) => {
+                    <MessageList className={styles.chatMessageList}
+                                typingIndicator={waitingForResponse && <TypingIndicator content="ChatGPT is thinking" style={{ background: '#ffffff' }} />}>
+                                {
+                                    messages.map((message, index) => {
                                         return (
                                             <Message
+                                                key={index}
                                                 model={{
                                                     message: message.content,
                                                     sentTime: `${message.sentTime}`,
@@ -100,6 +141,7 @@ export default function Chat() {
                                 }
                         </MessageList>
                             <MessageInput placeholder="Type message here"
+                                style={{ background: '#ffffff' }}
                                 onSend={sendMessage}
                                 autoFocus={true}
                                 attachButton={false}
