@@ -12,12 +12,15 @@ type Message = {
 }
 // declare ChatGPT
 const CHATGPT_USER = "ChatGPT";
+// default behaviour
+const DEFAULT_BEHAVIOUR = "General Conversaton";
 
 
 export default function Chat() {
     const messageInput = useRef<HTMLDivElement>(null);    
     const [messages, setMessages] = useState<Message[]>([]);
-
+    const [behaviorInput, setBehaviorInput] = useState(DEFAULT_BEHAVIOUR);
+    const [behavior, setBehavior] = useState(DEFAULT_BEHAVIOUR);
     const [waitingForResponse, setWaitingForResponse] = useState(false);
 
     useEffect(() => {
@@ -62,16 +65,24 @@ export default function Chat() {
         }
     }
 
+    // update behaviour
+    const updateBehavior = () => { 
+        const finalBehavior = behaviorInput.trim().length ? behaviorInput.trim() : DEFAULT_BEHAVIOUR;
+        setBehavior(finalBehavior);
+    }
+
     return (
         <div className={styles.container}>
-            <div>
-             
+            <div className={styles.inputContainer}>
+                {/* behaviour */}
+                <input className={styles.input} value={behaviorInput} onChange={e => setBehaviorInput(e.target.value)} />
+                <button className={styles.submit} onClick={updateBehavior}>Update Behavior</button>
             </div>
             <div className={styles.chatWrapper}>
                 <div className={styles.chatContainer}>
-                <MainContainer >
+                <MainContainer className={styles.chatMessageList}>
                     <ChatContainer>
-                        <MessageList>
+                        <MessageList >
                         {messages.map((message) => {
                                         return (
                                             <Message

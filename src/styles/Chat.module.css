@@ -19,3 +19,44 @@
     min-height: 50vh;
     max-height: 90vh;
 }
+.inputContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px #FFFFFF solid;
+    border-radius: 0;
+    font-size: 1rem;
+    background: #4968cf;
+}
+
+.submit {
+    background: #4968cf;
+    border: 1px #ffffff solid;
+    display: flex;
+    padding: 1rem;
+    border-radius: none;
+    font-size: 1rem;
+    transition-duration: .15s;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+}
+
+.submit:hover {
+    background: #1c0a42;
+    cursor: pointer;
+}
+
+.chatMessageList {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: hsl(202, 76%, 84%);
+}
+
+.chatMessageList :global .scrollbar-container {
+    height: auto;
+}
